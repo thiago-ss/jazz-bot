@@ -1,0 +1,4 @@
+interface:
+  display_name: "Mini RPI"
+  short_description: "Lightweight RPI for small tweaks"
+  default_prompt: "Use $mini-rpi to make a small, low-risk change in this repo with minimal context."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Feature RPI"
+  short_description: "Research-plan-implement for features"
+  default_prompt: "Use $feature-rpi to scope, plan, and implement a new feature in this repo."
