@@ -70,7 +70,7 @@ The main environment variables are defined in [env.example](../env.example) and 
 - `DATABASE_URL`
 - `DATABASE_AUTH_TOKEN`
 
-If `DATABASE_URL` is omitted, the app falls back to a local SQLite database at `.data/jazz-bot.db`.
+If `DATABASE_URL` is omitted, the app uses `.data/jazz-bot.db` when the app directory is writable. In read-only deployments, it falls back to a temp SQLite file under the OS temp directory. For persistent production storage, set `DATABASE_URL`.
 
 ## Practical Notes For Agents
 

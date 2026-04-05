@@ -129,6 +129,7 @@ This means rate limiting is:
 
 If `DATABASE_URL` is missing, the app uses:
 
-- `file:${process.cwd()}/.data/jazz-bot.db`
+- `file:${process.cwd()}/.data/jazz-bot.db` when the app directory is writable
+- `file:${os.tmpdir()}/jazz-bot/jazz-bot.db` when the app directory is read-only, such as some serverless deployments
 
-If the DB is file-based, [lib/db/index.ts](../lib/db/index.ts) creates the parent directory automatically.
+If the DB is file-based, [lib/db/index.ts](../lib/db/index.ts) creates the parent directory automatically. The temp-directory fallback avoids bundle write errors, but it is still ephemeral storage, so production deployments should set `DATABASE_URL` for durable chat history.

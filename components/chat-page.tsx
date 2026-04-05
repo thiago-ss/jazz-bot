@@ -21,6 +21,7 @@ import {
   type PromptInputMessage,
 } from "@/components/ai-elements/prompt-input";
 import { ChatHeader } from "@/components/chat-header";
+import { ChatAnswerStartScroll } from "@/components/chat-answer-start-scroll";
 import { useChatHistory } from "@/components/chat-history-provider";
 import { ChatMessageList } from "@/components/chat-message-list";
 import { JazzEmptyState } from "@/components/jazz-empty-state";
@@ -93,7 +94,7 @@ export function ChatPage({
     const trimmedText = message.text.trim();
 
     if (!chatId) {
-      const createdChat = await createChat(trimmedText || "Untitled session");
+      const createdChat = await createChat();
       writePendingDraft({
         chatId: createdChat.id,
         text: trimmedText,
@@ -137,6 +138,7 @@ export function ChatPage({
                   />
                 )}
               </ConversationContent>
+              <ChatAnswerStartScroll messages={messages} status={status} />
               <ConversationScrollButton className="paper-shadow border-border/60 bg-background/95" />
             </Conversation>
 

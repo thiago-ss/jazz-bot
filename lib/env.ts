@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { z } from "zod";
 
@@ -26,10 +28,25 @@ export function getOptionalEnv(name: keyof ParsedEnv): string | undefined {
   return getParsedEnv()[name];
 }
 
+function canWriteToPath(targetPath: string) {
+  try {
+    fs.accessSync(targetPath, fs.constants.W_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function getDefaultDatabaseUrl() {
+  const baseDirectory = canWriteToPath(process.cwd())
+    ? path.join(process.cwd(), ".data")
+    : path.join(os.tmpdir(), "jazz-bot");
+
+  return `file:${path.join(baseDirectory, "jazz-bot.db")}`;
+}
+
 export function getDatabaseConfig() {
-  const databaseUrl =
-    getOptionalEnv("DATABASE_URL") ??
-    `file:${path.join(process.cwd(), ".data", "jazz-bot.db")}`;
+  const databaseUrl = getOptionalEnv("DATABASE_URL") ?? getDefaultDatabaseUrl();
 
   return {
     authToken: getOptionalEnv("DATABASE_AUTH_TOKEN"),

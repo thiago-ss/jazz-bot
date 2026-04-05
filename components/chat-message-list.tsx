@@ -19,6 +19,10 @@ import {
   ToolOutput,
 } from "@/components/ai-elements/tool";
 import { ToolResultCard } from "@/components/tool-result-card";
+import {
+  getAssistantAnswerStart,
+  getLatestAssistantMessage,
+} from "@/lib/chat-answer-start";
 
 type ToolMessagePart = Extract<
   UIMessage["parts"][number],
@@ -70,6 +74,11 @@ export function ChatMessageList({
   isToolOpen,
   onToolOpenChange,
 }: ChatMessageListProps) {
+  const latestAssistantMessage = getLatestAssistantMessage(messages);
+  const latestAssistantAnswerStart = latestAssistantMessage
+    ? getAssistantAnswerStart(latestAssistantMessage)
+    : null;
+
   return (
     <>
       {messages.map((message) => {
@@ -90,6 +99,10 @@ export function ChatMessageList({
         return (
           <Message from={message.role} key={message.id}>
             {message.parts.map((part, index) => {
+              const isAnswerStart =
+                latestAssistantAnswerStart?.messageId === message.id &&
+                latestAssistantAnswerStart.partIndex === index;
+
               if (isReasoningUIPart(part)) {
                 return (
                   <div
@@ -105,6 +118,7 @@ export function ChatMessageList({
                 return (
                   <Tool
                     className="paper-shadow w-fit rounded-[26px] border-border/60 bg-card/95 data-[state=open]:w-full"
+                    data-answer-start={isAnswerStart ? message.id : undefined}
                     key={`${message.id}-part-${index}`}
                     onOpenChange={(open) =>
                       onToolOpenChange(part.toolCallId, open)
@@ -136,6 +150,7 @@ export function ChatMessageList({
                 return (
                   <MessageContent
                     className="w-full rounded-[28px] border px-5 py-4 text-[15px] leading-7 group-[.is-assistant]:paper-shadow group-[.is-assistant]:rounded-[30px] group-[.is-assistant]:border-border/60 group-[.is-assistant]:bg-card group-[.is-assistant]:px-6 group-[.is-assistant]:py-5"
+                    data-answer-start={isAnswerStart ? message.id : undefined}
                     key={`${message.id}-part-${index}`}
                   >
                     <MessageResponse>{part.text}</MessageResponse>

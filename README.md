@@ -45,7 +45,7 @@ Optional database settings:
 - `DATABASE_URL`
 - `DATABASE_AUTH_TOKEN`
 
-If `DATABASE_URL` is omitted, the app uses `file:./.data/jazz-bot.db`.
+If `DATABASE_URL` is omitted, the app uses `file:./.data/jazz-bot.db` when the app directory is writable. In read-only deployments, it falls back to a temp SQLite file under the OS temp directory. For persistent production storage, set `DATABASE_URL`.
 
 4. Run the app:
 
