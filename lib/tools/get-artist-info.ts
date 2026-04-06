@@ -1,5 +1,6 @@
 import { tool } from "ai";
 import { z } from "zod";
+import { resolveArtistImage } from "./artist-image-service";
 import {
   lastfmRequest,
   normalizeList,
@@ -57,13 +58,18 @@ export const getArtistInfoTool = tool({
       };
     }
 
+    const image = await resolveArtistImage({
+      artist: artistInfo.name,
+      artistUrl: artistInfo.url,
+      lastfmImages: artistInfo.image,
+    });
+
     return {
       artist: {
         bio: stripHtml(artistInfo.bio?.content || artistInfo.bio?.summary),
-        imageUrl:
-          artistInfo.image?.find((image) => image.size === "extralarge")?.["#text"] ??
-          artistInfo.image?.at(-1)?.["#text"] ??
-          null,
+        imageSource: image.imageSource,
+        imageSourceUrl: image.imageSourceUrl,
+        imageUrl: image.imageUrl,
         listeners: artistInfo.stats?.listeners
           ? Number(artistInfo.stats.listeners)
           : null,

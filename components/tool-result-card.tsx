@@ -9,12 +9,45 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 
 const isUrl = (value: string) => /^https?:\/\//.test(value);
 
-function ResultValue({ value }: { value: unknown }) {
+const getLinkLabel = (fieldKey?: string) => {
+  if (fieldKey === "url") {
+    return "Open profile";
+  }
+
+  if (fieldKey === "imageSourceUrl") {
+    return "Open source";
+  }
+
+  return "Open link";
+};
+
+function ResultValue({
+  fieldKey,
+  value,
+}: {
+  fieldKey?: string;
+  value: unknown;
+}) {
   if (value === null || value === undefined) {
     return <span className="text-muted-foreground">Not available</span>;
   }
 
   if (typeof value === "string") {
+    if (fieldKey === "imageUrl" && isUrl(value)) {
+      return (
+        <div className="flex size-24 items-center justify-center overflow-hidden rounded-2xl border border-border/60 bg-background/70 p-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            alt="Artist image"
+            className="h-full w-full object-contain"
+            decoding="async"
+            loading="lazy"
+            src={value}
+          />
+        </div>
+      );
+    }
+
     if (isUrl(value)) {
       return (
         <a
@@ -23,7 +56,7 @@ function ResultValue({ value }: { value: unknown }) {
           rel="noreferrer"
           target="_blank"
         >
-          Open source
+          {getLinkLabel(fieldKey)}
           <ExternalLinkIcon className="size-3.5" />
         </a>
       );
@@ -45,7 +78,7 @@ function ResultValue({ value }: { value: unknown }) {
       <ul className="space-y-2">
         {value.slice(0, 8).map((item, index) => (
           <li className="leading-6" key={index}>
-            <ResultValue value={item} />
+            <ResultValue fieldKey={fieldKey} value={item} />
           </li>
         ))}
       </ul>
@@ -63,7 +96,7 @@ function ResultValue({ value }: { value: unknown }) {
               {key.replaceAll(/([A-Z])/g, " $1")}
             </div>
             <div className="rounded-2xl border border-border/60 bg-background/70 p-3">
-              <ResultValue value={nestedValue} />
+              <ResultValue fieldKey={key} value={nestedValue} />
             </div>
           </div>
         ))}
