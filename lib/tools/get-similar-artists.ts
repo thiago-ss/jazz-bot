@@ -1,5 +1,6 @@
 import { tool } from "ai";
 import { z } from "zod";
+import { enrichArtistImageList } from "./artist-image-service";
 import { lastfmRequest, normalizeList } from "./lastfm-client";
 
 type SimilarArtistsResponse = {
@@ -41,18 +42,17 @@ export const getSimilarArtistsTool = tool({
       return result;
     }
 
-    const artists = normalizeList(result.data.similarartists?.artist)
+    const artists = await enrichArtistImageList(
+      normalizeList(result.data.similarartists?.artist)
       .filter((item) => item.name)
       .slice(0, limit)
       .map((item) => ({
-        imageUrl:
-          item.image?.find((image) => image.size === "large")?.["#text"] ??
-          item.image?.at(-1)?.["#text"] ??
-          null,
+        lastfmImages: item.image,
         match: item.match ? Number(item.match) : null,
         name: item.name ?? "",
         url: item.url ?? null,
-      }));
+      })),
+    );
 
     return {
       artist: result.data.similarartists?.["@attr"]?.artist ?? artist,

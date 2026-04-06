@@ -3,12 +3,26 @@ import "server-only";
 import { getOptionalEnv } from "@/lib/env";
 
 const LASTFM_BASE_URL = "https://ws.audioscrobbler.com/2.0/";
+const LASTFM_PLACEHOLDER_HASH = "2a96cbd8b46e442fc41c2b86b821562f";
+const LASTFM_IMAGE_SIZE_ORDER = [
+  "mega",
+  "extralarge",
+  "large",
+  "medium",
+  "small",
+  "",
+] as const;
 
 type LastfmQueryValue = string | number | undefined;
 
 type LastfmResponse = {
   error?: number;
   message?: string;
+};
+
+export type LastfmImage = {
+  "#text"?: string;
+  size?: string;
 };
 
 export function stripHtml(input?: string | null) {
@@ -25,6 +39,26 @@ export function normalizeList<T>(value: T | T[] | undefined | null): T[] {
   }
 
   return Array.isArray(value) ? value : [value];
+}
+
+export function isLastfmPlaceholderImage(url?: string | null) {
+  return !url?.trim() || url.includes(LASTFM_PLACEHOLDER_HASH);
+}
+
+export function pickBestLastfmImage(images?: LastfmImage[] | null) {
+  const normalizedImages = normalizeList(images);
+
+  for (const size of LASTFM_IMAGE_SIZE_ORDER) {
+    const imageUrl = normalizedImages.find((image) => (image.size ?? "") === size)?.[
+      "#text"
+    ];
+
+    if (!isLastfmPlaceholderImage(imageUrl)) {
+      return imageUrl ?? null;
+    }
+  }
+
+  return null;
 }
 
 export function createUnavailableToolResult(service: string, reason: string) {
